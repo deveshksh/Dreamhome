@@ -44,3 +44,15 @@ class BranchDetail(APIView):
         queryset = self.get_object(id)
         queryset.delete()
         return Response(status = status.HTTP_204_NO_CONTENT)
+    
+class StaffList(APIView):
+    def get(self, request):
+        queryset = Staff.objects.all()
+        serializer = StaffSerializer(queryset, many = True)
+        return Response(serializer.data)
+    def post(self, request):
+        serializer = StaffSerializer(data= request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(status = status.HTTP_400_BAD_REQUEST)
