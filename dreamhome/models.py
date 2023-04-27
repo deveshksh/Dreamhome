@@ -8,6 +8,38 @@
 from django.db import models
 
 
+class Privateowner(models.Model):
+    ownerno = models.CharField(db_column='OwnerNo', primary_key=True, max_length=6)  # Field name made lowercase.
+    ownername = models.CharField(db_column='ownerName', max_length=30, blank=True, null=True)  # Field name made lowercase.
+    homeaddress = models.CharField(db_column='homeAddress', unique=True, max_length=100)  # Field name made lowercase.
+    telno = models.CharField(db_column='telNo', max_length=15)  # Field name made lowercase.
+    regbranch = models.ForeignKey('Branch', models.DO_NOTHING, db_column='regBranch')  # Field name made lowercase.
+    regstaff = models.ForeignKey('Staff', models.DO_NOTHING, db_column='regStaff')  # Field name made lowercase.
+    regdate = models.DateField(db_column='regDate')  # Field name made lowercase.
+    typeofbusiness = models.CharField(db_column='typeOfBusiness', max_length=20, blank=True, null=True)  # Field name made lowercase.
+    contactname = models.CharField(db_column='contactName', max_length=40, blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'PrivateOwner'
+
+
+class Propertyforrent(models.Model):
+    propertyno = models.CharField(db_column='propertyNo', primary_key=True, max_length=6)  # Field name made lowercase.
+    proptype = models.CharField(db_column='propType', max_length=10)  # Field name made lowercase.
+    rooms = models.SmallIntegerField()
+    rent = models.IntegerField()
+    address = models.CharField(unique=True, max_length=100)
+    regowner = models.ForeignKey(Privateowner, models.DO_NOTHING, db_column='regOwner')  # Field name made lowercase.
+    regstaff = models.ForeignKey('Staff', models.DO_NOTHING, db_column='regStaff')  # Field name made lowercase.
+    regbranch = models.ForeignKey('Branch', models.DO_NOTHING, db_column='regBranch')  # Field name made lowercase.
+    regdate = models.DateField(db_column='regDate')  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'PropertyForRent'
+
+
 class Branch(models.Model):
     branch_no = models.CharField(primary_key=True, max_length=6)
     address = models.CharField(unique=True, max_length=100)

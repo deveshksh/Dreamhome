@@ -44,6 +44,45 @@ class BranchDetail(APIView):
         queryset = self.get_object(id)
         queryset.delete()
         return Response(status = status.HTTP_204_NO_CONTENT)
+
+class ClientView(APIView):
+    def get(self, request):
+        queryset = Client.objects.all()
+        serializer = ClientSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = ClientSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ClientDetail(APIView):
+    def get_object(self, client_no):
+        try:
+            return Client.objects.get(clientno=client_no)
+        except Client.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id):
+        queryset = self.get_object(id)
+        serializer = ClientSerializer(queryset)
+        return Response(serializer.data)
+
+    def put(self, request, id):
+        queryset = self.get_object(id)
+        serializer = ClientSerializer(queryset, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, id):
+        queryset = self.get_object(id)
+        queryset.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
     
 class StaffList(APIView):
     def get(self, request, branch_no = None):

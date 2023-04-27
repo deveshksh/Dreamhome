@@ -52,6 +52,11 @@ class StaffByBranchSerializer(serializers.Serializer):
         model = Staff
         fields = "__all__"
 
+class ClientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Client
+        fields = "__all__"
+
 class PrivateOwnerSerializer(serializers.ModelSerializer):
     ownerno = serializers.PrimaryKeyRelatedField(read_only =True)
     class Meta:
@@ -67,4 +72,3 @@ class PrivateOwnerSerializer(serializers.ModelSerializer):
         
         owner = Privateowner.objects.create(ownerno = new_code, **validated_data)
         return owner
-
