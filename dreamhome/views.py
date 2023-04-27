@@ -46,12 +46,41 @@ class BranchDetail(APIView):
         return Response(status = status.HTTP_204_NO_CONTENT)
     
 class StaffList(APIView):
-    def get(self, request):
+    def get(self, request, branch_no = None):
+        if branch_no:
+            queryset = Staff.objects.filter(branch_no = branch_no)
+            serializer = StaffSerializer(queryset, many = True)
+            return Response(serializer.data)
         queryset = Staff.objects.all()
         serializer = StaffSerializer(queryset, many = True)
         return Response(serializer.data)
     def post(self, request):
         serializer = StaffSerializer(data= request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(status = status.HTTP_400_BAD_REQUEST)
+
+class StaffByBranch(APIView): #STAFF LISTING
+    def get(self, request, branch_no):
+        queryset1 = Branch.objects.get(branch_no = branch_no)
+        queryset2 = Staff.objects.filter(branch_no = branch_no)
+        print(queryset2)
+        data = {
+            "branch": queryset1,
+            "staff": queryset2
+        }
+        serializer = StaffByBranchSerializer(data)
+        return Response(serializer.data)
+
+class PrivateOwnerList(APIView):
+    def get(self, request):
+        queryset = Privateowner.objects.all()
+        serializer = PrivateOwnerSerializer(queryset, many = True)
+        return Response(serializer.data)
+    
+    def post(self, request):
+        serializer = PrivateOwnerSerializer(data = request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
