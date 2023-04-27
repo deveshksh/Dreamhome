@@ -72,3 +72,46 @@ class PrivateOwnerSerializer(serializers.ModelSerializer):
         
         owner = Privateowner.objects.create(ownerno = new_code, **validated_data)
         return owner
+
+class PropertyforrentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Propertyforrent
+        fields = "__all__"
+
+class SimplePropertySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Propertyforrent
+        fields = ("propertyno", "address", "proptype", "rooms", "rent")
+
+class PropertyByBranchSerializer(serializers.Serializer):
+    branch = SimpleBranchSerializer()
+    property = SimplePropertySerializer(many = True)
+    class Meta:
+        model = Staff
+        fields = "__all__"
+
+class ViewReportSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(read_only = True)
+    class Meta:
+        model = ViewReport
+        fields = "__all__"
+    def create(self, validated_data):
+        last = ViewReport.objects.order_by("id").last()
+        if last:
+            new_id = last.id + 1
+        else:
+            new_id = 1
+        report = ViewReport.objects.create(id = new_id, **validated_data)
+        return report
+
+class SimpleReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ViewReport
+        fields = ("clientno", "view_date", "comment")
+
+class ViewReportByPropertySerializer(serializers.Serializer):
+    property = SimplePropertySerializer()
+    report = SimpleReportSerializer(many = True)
+    class Meta:
+        model = Staff
+        fields = "__all__"

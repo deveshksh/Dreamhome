@@ -81,7 +81,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dreamhome_team',
         'USER': 'root',
-        'PASSWORD': '$$MySqlNo1$$',
+        'PASSWORD': 'Devarshi9425#',
         'HOST': 'localhost',
         'PORT': '3306',
     }
