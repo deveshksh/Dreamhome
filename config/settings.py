@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "dreamhome",
-    "rest_framework"
+    "rest_framework",
+    'django.db.backends.mysql'
 ]
 
 MIDDLEWARE = [
@@ -80,7 +81,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dreamhome_team',
         'USER': 'root',
-        'PASSWORD': 'Devarshi9425#',
+        'PASSWORD': '$$MySqlNo1$$',
         'HOST': 'localhost',
         'PORT': '3306',
     }
