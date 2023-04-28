@@ -218,13 +218,14 @@ class ViewReport(models.Model):
 
 class Lease(models.Model):
     clientno = models.ForeignKey(Client, models.DO_NOTHING, db_column='clientno')
-    propertyno = models.OneToOneField(Propertyforrent, models.DO_NOTHING, db_column='propertyno', primary_key=True)
+    propertyno = models.ForeignKey('Propertyforrent', models.DO_NOTHING, db_column='propertyno')
     rent = models.IntegerField()
     payment_method = models.CharField(max_length=30)
     deposit_paid = models.IntegerField()
     rent_start = models.DateField()
     rent_finish = models.DateField(blank=True, null=True)
     duration = models.IntegerField()
+    leaseno = models.CharField(primary_key=True, max_length=8)
 
     class Meta:
         managed = False

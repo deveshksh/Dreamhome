@@ -141,6 +141,15 @@ class PreferenceSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class LeaseSerializer(serializers.ModelSerializer):
+    leaseno = serializers.PrimaryKeyRelatedField(read_only = True)
     class Meta:
         model = Lease
         fields = "__all__"
+
+    def create(self, validated_data):
+        lease = Lease.objects.order_by("leaseno").last()
+        if lease:
+            new_no = str(int(lease.leaseno) + 1).zfill(8)
+        else:
+            new_no = "00000001"
+        return Lease.objects.create(leaseno = new_no, **validated_data)
