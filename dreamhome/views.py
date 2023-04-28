@@ -87,7 +87,7 @@ class ClientDetail(APIView):
     
 
 
-#3 STAFF VIEW --------------------------------------------------------------------------------------------------------------------------------------
+#3 STAFF VIEW --------------------------------------------------------------------------------------------------------------------------------
 class StaffList(APIView):
     def get(self, request, branch_no = None):
         if branch_no:
@@ -97,16 +97,27 @@ class StaffList(APIView):
         queryset = Staff.objects.all()
         serializer = StaffSerializer(queryset, many = True)
         return Response(serializer.data)
+    def manager_exists(self, branchno):
+        if Staff.objects.filter(pos = "Manager", branch_no = branchno).exists():
+            return True
+        return False
     def post(self, request):
-        serializer = StaffSerializer(data= request.data)
+        serializer = StaffSerializer(data= request.data)        
         if serializer.is_valid():
+            if self.manager_exists(serializer.validated_data["branch_no"]) and serializer.validated_data["pos"] == "Manager":
+                return Response({"error": "Manager already exists"}, status = status.HTTP_400_BAD_REQUEST)
             serializer.save()
             return Response(serializer.data)
         return Response(status = status.HTTP_400_BAD_REQUEST)
 
 class StaffByBranch(APIView): #STAFF LISTING ------------------------------------------------------------------------------------------------------
+    def get_object(self, branch_no):
+        try:
+            return Branch.objects.get(branch_no = branch_no)
+        except Branch.DoesNotExist:
+            raise Http404
     def get(self, request, branch_no):
-        queryset1 = Branch.objects.get(branch_no = branch_no)
+        queryset1 = self.get_object(branch_no)
         queryset2 = Staff.objects.filter(branch_no = branch_no)
         print(queryset2)
         data = {
@@ -203,9 +214,14 @@ class PropertyforrentDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class PropertyByBranch(APIView): #----------------------------------------------------------------------------------
+    def get_object(self, branch_no):
+        try:
+            return Branch.objects.get(branch_no = branch_no)
+        except Branch.DoesNotExist:
+            raise Http404
     def get(self, request, branch_no):
-        queryset1 = Branch.objects.get(branch_no = branch_no)
-        queryset2 = Propertyforrent.objects.filter(regbranch = branch_no)
+        queryset1 = self.get_object(branch_no)
+        queryset2 = Propertyforrent.objects.filter(regbranch = branch_no, rent_status = 0)
         data = {
             "branch": queryset1,
             "property": queryset2
@@ -230,10 +246,16 @@ class ViewPropertyReport(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class ViewPropertyListing(APIView):
+class ViewPropertyReportListing(APIView):
+    def get_object(self, property_no):
+        try:
+            return Propertyforrent.objects.get(propertyno=property_no)
+        except Propertyforrent.DoesNotExist:
+            raise Http404
+        
     def get(self, request, property_no):
         queryset1 = ViewReport.objects.filter(propertyno = property_no)
-        queryset2 = Propertyforrent.objects.get(propertyno = property_no)
+        queryset2 = self.get_object(property_no)
         data = {
             "report": queryset1,
             "property": queryset2
@@ -246,3 +268,45 @@ class ViewPropertyListing(APIView):
             client = Client.objects.get(clientno = report["clientno"])
             report["clientName"] = client.fname + " " + client.lname
         return Response(serialized_data)
+
+class MatchProperty(APIView):
+    def get_object(self, property_no):
+        try:
+            return Propertyforrent.objects.get(propertyno=property_no)
+        except Propertyforrent.DoesNotExist:
+            raise Http404
+    def get(self, request, propertyno):
+        property = self.get_object(property_no = propertyno)
+        clients = Client.objects.filter(regbranch = property.regbranch, maxrent__gt = property.rent, preftype = property.proptype)
+        data = {
+            "property": property,
+            "client": clients
+        }
+        serializer = MatchingSerializer(data)
+        return Response(serializer.data)
+
+class PreferenceList(APIView):
+    def get(self, request):
+        queryset = Preferences.objects.all()
+        serializer = PreferenceSerializer(queryset, many = True)
+        return Response(serializer.data)
+    
+    def post(self, request):
+        serializer = PreferenceSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(status = status.HTTP_400_BAD_REQUEST)
+
+class LeaseView(APIView):
+    def get(self, request):
+        queryset = Lease.objects.all()
+        serializer = LeaseSerializer(queryset, many = True)
+        return Response(serializer.data)
+    
+    def post(self, request):
+        serializer = LeaseSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(status = status.HTTP_400_BAD_REQUEST)

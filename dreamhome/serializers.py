@@ -53,9 +53,19 @@ class StaffByBranchSerializer(serializers.Serializer):
         fields = "__all__"
 
 class ClientSerializer(serializers.ModelSerializer):
+    clientno = serializers.PrimaryKeyRelatedField(read_only = True)
     class Meta:
         model = Client
         fields = "__all__"
+
+    def create(self, validated_data):
+        last = Client.objects.order_by("clientno").last()
+        if last:
+            new_id = "C" + str(int(last.clientno[1:]) + 1).zfill(5)
+        else:
+            new_id = "C00001"
+        client = Client.objects.create(clientno = new_id, **validated_data)
+        return client
 
 class PrivateOwnerSerializer(serializers.ModelSerializer):
     ownerno = serializers.PrimaryKeyRelatedField(read_only =True)
@@ -114,4 +124,23 @@ class ViewReportByPropertySerializer(serializers.Serializer):
     report = SimpleReportSerializer(many = True)
     class Meta:
         model = Staff
+        fields = "__all__"
+
+class SimpleClientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Client
+        fields = ("clientno", "fname", "lname", "regdate")
+
+class MatchingSerializer(serializers.Serializer):
+    property = SimplePropertySerializer()
+    client = SimpleClientSerializer(many = True)
+
+class PreferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Preferences
+        fields = "__all__"
+
+class LeaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lease
         fields = "__all__"
