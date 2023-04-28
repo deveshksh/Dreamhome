@@ -18,6 +18,12 @@ urlpatterns = [
     path('properties/<str:id>/', PropertyforrentDetail.as_view(), name='property_detail'),
     path("propertieslisting/<str:branch_no>/", PropertyByBranch.as_view()), #USE IN LISTING
 
-    path("propertyreport/", ViewPropertyReport.as_view()),#VIEWREPORT-FORM
-    path("propertyreportlisting/<str:property_no>/", ViewPropertyListing.as_view()), #USE IN LISTING
+    path("propertyreport/", ViewPropertyReport.as_view()),
+    path("propertyreportlisting/<str:property_no>/", ViewPropertyReportListing.as_view()),
+
+    path("propertymatch/<str:propertyno>/", MatchProperty.as_view()),
+
+    path("preferences/", PreferenceList.as_view()),
+    
+    path("lease/", LeaseView.as_view()),
 ]

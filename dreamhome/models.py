@@ -92,7 +92,7 @@ class Client(models.Model):
     fname = models.CharField(max_length=30)
     lname = models.CharField(max_length=30)
     regbranch = models.ForeignKey(Branch, models.DO_NOTHING, db_column='regBranch')  # Field name made lowercase.
-    preftype = models.CharField(db_column='prefType', max_length=10, blank=True, null=True)  # Field name made lowercase.
+    preftype = models.ForeignKey('Preferences', models.DO_NOTHING, db_column='prefType', blank=True, null=True)  # Field name made lowercase.
     maxrent = models.IntegerField(db_column='maxRent')  # Field name made lowercase.
     regdate = models.DateField(db_column='regDate')  # Field name made lowercase.
     regstaff = models.ForeignKey('Staff', models.DO_NOTHING, db_column='regStaff')  # Field name made lowercase.
@@ -146,6 +146,13 @@ class DjangoSession(models.Model):
         managed = False
         db_table = 'django_session'
 
+class Preferences(models.Model):
+    name = models.CharField(primary_key=True, max_length=30)
+
+    class Meta:
+        managed = False
+        db_table = 'preferences'
+
 
 class Privateowner(models.Model):
     ownerno = models.CharField(db_column='ownerNo', primary_key=True, max_length=6)  # Field name made lowercase.
@@ -165,7 +172,7 @@ class Privateowner(models.Model):
 
 class Propertyforrent(models.Model):
     propertyno = models.CharField(db_column='propertyNo', primary_key=True, max_length=6)  # Field name made lowercase.
-    proptype = models.CharField(db_column='propType', max_length=10)  # Field name made lowercase.
+    proptype = models.ForeignKey(Preferences, models.DO_NOTHING, db_column='propType')  # Field name made lowercase.
     rooms = models.SmallIntegerField()
     rent = models.IntegerField()
     address = models.CharField(unique=True, max_length=100)
@@ -173,6 +180,7 @@ class Propertyforrent(models.Model):
     regstaff = models.ForeignKey('Staff', models.DO_NOTHING, db_column='regStaff')  # Field name made lowercase.
     regbranch = models.ForeignKey(Branch, models.DO_NOTHING, db_column='regBranch')  # Field name made lowercase.
     regdate = models.DateField(db_column='regDate')  # Field name made lowercase.
+    rent_status = models.IntegerField()
 
     class Meta:
         managed = False
@@ -207,3 +215,18 @@ class ViewReport(models.Model):
     class Meta:
         managed = False
         db_table = 'view_report'
+
+class Lease(models.Model):
+    clientno = models.ForeignKey(Client, models.DO_NOTHING, db_column='clientno')
+    propertyno = models.ForeignKey('Propertyforrent', models.DO_NOTHING, db_column='propertyno')
+    rent = models.IntegerField()
+    payment_method = models.CharField(max_length=30)
+    deposit_paid = models.IntegerField()
+    rent_start = models.DateField()
+    rent_finish = models.DateField(blank=True, null=True)
+    duration = models.IntegerField()
+    leaseno = models.CharField(primary_key=True, max_length=8)
+
+    class Meta:
+        managed = False
+        db_table = 'lease'
