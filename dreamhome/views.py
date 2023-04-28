@@ -317,11 +317,53 @@ class LeaseView(APIView):
             return Response(serializer.data)
         return Response(status = status.HTTP_400_BAD_REQUEST)
 
-class BranchSearchAPI(APIView):
-    def get(self, request):
-        search_query = request.query_params.get('q', '')
-        results = Branch.objects.filter(Q(branch_no__icontains = search_query))
-        serializer = SimpleBranchSerializer(results, many = True)
-        serialized_data = serializer.data
-        print(serialized_data)
-        return Response(serializer.data)
+
+class BranchSearchView(APIView):
+    def get(self, request, format=None):
+        search_query = request.query_params.get('q', None)
+        if search_query:
+            branches = Branch.objects.filter(Q(branch_no__icontains=search_query) | Q(address__icontains=search_query))
+            serialized_branches = [{"branch_no": branch.branch_no, "address": branch.address} for branch in branches]
+            return Response(serialized_branches)
+        else:
+            return Response([])
+
+class StaffSearchView(APIView):
+    def get(self, request, format=None):
+        search_query = request.query_params.get('q', None)
+        if search_query:
+            staffs = Staff.objects.filter(Q(staff_no__icontains=search_query) | Q(fname__icontains=search_query) | Q(lname__icontains=search_query) )
+            serialized_staff = [{"staff_no": staff.staff_no, "name": staff.fname + " " + staff.lname} for staff in staffs]
+            return Response(serialized_staff)
+        else:
+            return Response([])
+
+class ClientSearchView(APIView):
+    def get(self, request, format=None):
+        search_query = request.query_params.get('q', None)
+        if search_query:
+            clients = Client.objects.filter(Q(client_no__icontains=search_query) | Q(fname__icontains=search_query) | Q(lname__icontains=search_query) )
+            serialized_client = [{"client_no": client.client_no, "name": client.fname + " " + client.lname} for client in clients]
+            return Response(serialized_client)
+        else:
+            return Response([])
+
+class PropertySearchView(APIView):
+    def get(self, request, format=None):
+        search_query = request.query_params.get('q', None)
+        if search_query:
+            branches = Propertyforrent.objects.filter(Q(propertyno__icontains=search_query) | Q(address__icontains=search_query))
+            serialized_branches = [{"propertyno": branch.propertyno, "address": branch.address} for branch in branches]
+            return Response(serialized_branches)
+        else:
+            return Response([])
+
+class OwnerSearchView(APIView):
+    def get(self, request, format=None):
+        search_query = request.query_params.get('q', None)
+        if search_query:
+            branches = Privateowner.objects.filter(Q(ownerno__icontains=search_query) |Q(ownername__icontains=search_query))
+            serialized_branches = [{"ownerno": branch.ownerno, "ownername": branch.ownername} for branch in branches]
+            return Response(serialized_branches)
+        else:
+            return Response([])
