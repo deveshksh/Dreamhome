@@ -5,6 +5,7 @@ from .serializers import *
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
+from django.db.models import Q
 
 #1 BRANCH VIEW
 class BranchView(APIView):
@@ -310,3 +311,12 @@ class LeaseView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(status = status.HTTP_400_BAD_REQUEST)
+
+class BranchSearchAPI(APIView):
+    def get(self, request):
+        search_query = request.query_params.get('q', '')
+        results = Branch.objects.filter(Q(branch_no__icontains = search_query))
+        serializer = SimpleBranchSerializer(results, many = True)
+        serialized_data = serializer.data
+        print(serialized_data)
+        return Response(serializer.data)
