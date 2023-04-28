@@ -117,6 +117,11 @@ class StaffByBranch(APIView): #STAFF LISTING -----------------------------------
             return Branch.objects.get(branch_no = branch_no)
         except Branch.DoesNotExist:
             raise Http404
+    def get_manager(self, branch_no):
+        try:
+            return Staff.objects.get(branch_no = branch_no, pos = "Manager")
+        except Staff.DoesNotExist:
+            raise Http404
     def get(self, request, branch_no):
         queryset1 = self.get_object(branch_no)
         queryset2 = Staff.objects.filter(branch_no = branch_no)
@@ -125,7 +130,7 @@ class StaffByBranch(APIView): #STAFF LISTING -----------------------------------
             "branch": queryset1,
             "staff": queryset2
         }
-        manager = Staff.objects.get(branch_no = branch_no, pos = "Manager")
+        manager = self.get_manager(branch_no = branch_no)
         serializer = StaffByBranchSerializer(data)
 
         serialized_data = serializer.data
