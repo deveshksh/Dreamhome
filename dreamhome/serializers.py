@@ -153,3 +153,15 @@ class LeaseSerializer(serializers.ModelSerializer):
         else:
             new_no = "00000001"
         return Lease.objects.create(leaseno = new_no, **validated_data)
+
+class SimpleLeaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lease
+        fields = ("leaseno", "clientno", "propertyno", "rent", "rent_finish")
+
+class LeaseByActiveStatusSerializer(serializers.Serializer):
+    active = SimpleLeaseSerializer(many = True)
+    inactive = SimpleLeaseSerializer(many = True)
+    class Meta:
+        model = Staff
+        fields = "__all__"

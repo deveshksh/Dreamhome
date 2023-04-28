@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
 from django.db.models import Q
+from django.utils import timezone
+
 
 #1 BRANCH VIEW
 class BranchView(APIView):
@@ -125,7 +127,6 @@ class StaffByBranch(APIView): #STAFF LISTING -----------------------------------
     def get(self, request, branch_no):
         queryset1 = self.get_object(branch_no)
         queryset2 = Staff.objects.filter(branch_no = branch_no)
-        print(queryset2)
         data = {
             "branch": queryset1,
             "staff": queryset2
@@ -316,6 +317,42 @@ class LeaseView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(status = status.HTTP_400_BAD_REQUEST)
+
+class LeaseDetail(APIView):
+    def get_object(self, leaseno):
+        try:
+            return Lease.objects.get(leaseno=leaseno)
+        except Lease.DoesNotExist:
+            raise Http404
+
+    def get(self, request, leaseno):
+        queryset = self.get_object(leaseno)
+        serializer = LeaseSerializer(queryset)
+        return Response(serializer.data)
+
+    def delete(self, request, id):
+        queryset = self.get_object(id)
+        queryset.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class LeaseViewByActiveStatus(APIView):
+    def get(self, request):
+        today = timezone.now().date()
+        inactive = Lease.objects.filter(rent_finish__lt = today)
+        active = Lease.objects.filter(rent_finish__gt = today)
+        data = {
+            "active": active,
+            "inactive": inactive
+        }
+        serializer = LeaseByActiveStatusSerializer(data)
+        serialized_data = serializer.data
+        for object in serialized_data["active"]:
+            property = Propertyforrent.objects.get(propertyno = object["propertyno"])
+            object["address"] = property.address
+        for object in serialized_data["inactive"]:
+            property = Propertyforrent.objects.get(propertyno = object["propertyno"])
+            object["address"] = property.address
+        return Response(serialized_data)
 
 
 class BranchSearchView(APIView):
