@@ -26,14 +26,14 @@ urlpatterns = [
     path("preferences/", PreferenceList.as_view()),
 
     path("lease/", LeaseView.as_view()),
-    path("createlease/<str:propertyno>/", LeaseView.as_view()),
-    
+    path("lease/<str:leaseno>/", LeaseDetail.as_view()),
+    path("leasebyactive/", LeaseViewByActiveStatus.as_view()), #USE IN LEASE LISTING(SORT BY ACTIVE)
+
     path("branch/search", BranchSearchView.as_view()),
     path("staff/search", StaffSearchView.as_view()),
     path("client/search", ClientSearchView.as_view()),
     path("property/search", PropertySearchView.as_view()),
     path("owner/search", OwnerSearchView.as_view()),
 
-    path("leasebyactive/", LeaseViewByActiveStatus.as_view()),
 
 ]
