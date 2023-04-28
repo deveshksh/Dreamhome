@@ -24,6 +24,8 @@ urlpatterns = [
     path("propertymatch/<str:propertyno>/", MatchProperty.as_view()),
 
     path("preferences/", PreferenceList.as_view()),
-    
+
     path("lease/", LeaseView.as_view()),
+    
+    path("branch/search/", BranchSearchAPI.as_view()),
 ]
