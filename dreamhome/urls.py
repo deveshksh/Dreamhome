@@ -30,10 +30,10 @@ urlpatterns = [
     path("leasebyactive/", LeaseViewByActiveStatus.as_view()), #USE IN LEASE LISTING(SORT BY ACTIVE)
 
     path("branch/search", BranchSearchView.as_view()),
-    path("staff/search", StaffSearchView.as_view()),
-    path("client/search", ClientSearchView.as_view()),
-    path("property/search", PropertySearchView.as_view()),
-    path("owner/search", OwnerSearchView.as_view()),
+    path("staff/<str:branch_no>/search", StaffSearchView.as_view()),
+    path("client/<str:branch_no>/search", ClientSearchView.as_view()),
+    path("property/<str:branch_no>/search", PropertySearchView.as_view()),
+    path("owner/<str:branch_no>/search", OwnerSearchView.as_view()),
 
 
 ]
