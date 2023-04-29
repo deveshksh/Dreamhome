@@ -116,8 +116,10 @@ class StaffList(APIView):
 class StaffByBranch(APIView): #STAFF LISTING ------------------------------------------------------------------------------------------------------
     def get_object(self, branch_no):
         try:
+            print("hiiiiiiiii")
             return Branch.objects.get(branch_no = branch_no)
         except Branch.DoesNotExist:
+            print("hiiiiiiiii")
             raise Http404
     def get_manager(self, branch_no):
         try:
@@ -127,15 +129,18 @@ class StaffByBranch(APIView): #STAFF LISTING -----------------------------------
     def get(self, request, branch_no):
         queryset1 = self.get_object(branch_no)
         queryset2 = Staff.objects.filter(branch_no = branch_no)
+        
         data = {
             "branch": queryset1,
-            "staff": queryset2
+            "staff": queryset2,
         }
         manager = self.get_manager(branch_no = branch_no)
         serializer = StaffByBranchSerializer(data)
 
         serialized_data = serializer.data
         serialized_data["manager_name"] = manager.fname + " " + manager.lname
+        serialized_data["length"] = queryset2.count()
+
         return Response(serialized_data)
 
 
