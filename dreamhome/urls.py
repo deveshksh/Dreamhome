@@ -5,7 +5,7 @@ urlpatterns = [
     path("branch/<str:id>/", BranchDetail.as_view(), name = "branch detail"),
     
     path("staff/", StaffList.as_view(), name = "staff list"), #STAFF-FORM
-    path("staff/<str:branch_no>", StaffList.as_view(), name = "staff list by branch"),
+    path("staff/<str:id>", StaffDetail.as_view(), name = "staff detail"),
     path("stafflisting/<str:branch_no>/", StaffByBranch.as_view(), name = "staff by branch"), #USE IN LISTING
 
     path("privateOwner/", PrivateOwnerList.as_view()), #OWNER-FORM

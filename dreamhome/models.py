@@ -217,7 +217,7 @@ class ViewReport(models.Model):
         db_table = 'view_report'
 
 class Lease(models.Model):
-    clientno = models.ForeignKey(Client, models.DO_NOTHING, db_column='clientno')
+    clientno = models.ForeignKey(Client, models.DO_NOTHING, db_column='clientno', related_name="leaseno")
     propertyno = models.ForeignKey('Propertyforrent', models.DO_NOTHING, db_column='propertyno')
     rent = models.IntegerField()
     payment_method = models.CharField(max_length=30)
