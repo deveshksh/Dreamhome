@@ -432,7 +432,7 @@ class ClientSearchView(APIView):
         search_query = request.query_params.get('q', None)
         if search_query:
             clients = Client.objects.filter(Q(clientno__icontains=search_query) | Q(fname__icontains=search_query) | Q(lname__icontains=search_query), regbranch = branch_no  )
-            serialized_client = [{"client_no": client.client_no, "name": client.fname + " " + client.lname} for client in clients]
+            serialized_client = [{"client_no": client.clientno, "name": client.fname + " " + client.lname} for client in clients]
             return Response(serialized_client)
         else:
             return Response([])
