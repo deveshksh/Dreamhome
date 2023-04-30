@@ -180,14 +180,11 @@ class Propertyforrent(models.Model):
     regstaff = models.ForeignKey('Staff', models.DO_NOTHING, db_column='regStaff')  # Field name made lowercase.
     regbranch = models.ForeignKey(Branch, models.DO_NOTHING, db_column='regBranch')  # Field name made lowercase.
     regdate = models.DateField(db_column='regDate')  # Field name made lowercase.
-    rent_status = models.IntegerField()
+    rent_status = models.IntegerField(blank=True, null=True, default = 0)
 
     class Meta:
         managed = False
         db_table = 'propertyforrent'
-    
-    def __str__(self):
-        return f'{self.propertyno} - {self.address}'
 
 
 class Staff(models.Model):
