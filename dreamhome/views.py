@@ -116,10 +116,8 @@ class StaffList(APIView):
 class StaffByBranch(APIView): #STAFF LISTING ------------------------------------------------------------------------------------------------------
     def get_object(self, branch_no):
         try:
-            print("hiiiiiiiii")
             return Branch.objects.get(branch_no = branch_no)
         except Branch.DoesNotExist:
-            print("hiiiiiiiii")
             raise Http404
     def get_manager(self, branch_no):
         try:
@@ -129,10 +127,9 @@ class StaffByBranch(APIView): #STAFF LISTING -----------------------------------
     def get(self, request, branch_no):
         queryset1 = self.get_object(branch_no)
         queryset2 = Staff.objects.filter(branch_no = branch_no)
-        
         data = {
             "branch": queryset1,
-            "staff": queryset2,
+            "staff": queryset2
         }
         manager = self.get_manager(branch_no = branch_no)
         serializer = StaffByBranchSerializer(data)
@@ -140,10 +137,6 @@ class StaffByBranch(APIView): #STAFF LISTING -----------------------------------
         serialized_data = serializer.data
         serialized_data["manager_name"] = manager.fname + " " + manager.lname
         serialized_data["length"] = queryset2.count()
-<<<<<<< HEAD
-
-=======
->>>>>>> 488989f7e360021cc7a50d65753946323b4008b1
         return Response(serialized_data)
 
 
@@ -389,8 +382,8 @@ class ClientSearchView(APIView):
     def get(self, request, branch_no, format=None):
         search_query = request.query_params.get('q', None)
         if search_query:
-            clients = Client.objects.filter(Q(client_no__icontains=search_query) | Q(fname__icontains=search_query) | Q(lname__icontains=search_query), regbranch = branch_no  )
-            serialized_client = [{"client_no": client.client_no, "name": client.fname + " " + client.lname} for client in clients]
+            clients = Client.objects.filter(Q(clientno__icontains=search_query) | Q(fname__icontains=search_query) | Q(lname__icontains=search_query), regbranch = branch_no  )
+            serialized_client = [{"client_no": client.clientno, "name": client.fname + " " + client.lname} for client in clients]
             return Response(serialized_client)
         else:
             return Response([])
