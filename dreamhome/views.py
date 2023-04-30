@@ -92,11 +92,7 @@ class ClientDetail(APIView):
 
 #3 STAFF VIEW --------------------------------------------------------------------------------------------------------------------------------
 class StaffList(APIView):
-    def get(self, request, branch_no = None):
-        if branch_no:
-            queryset = Staff.objects.filter(branch_no = branch_no)
-            serializer = StaffSerializer(queryset, many = True)
-            return Response(serializer.data)
+    def get(self, request):
         queryset = Staff.objects.all()
         serializer = StaffSerializer(queryset, many = True)
         return Response(serializer.data)
@@ -112,6 +108,31 @@ class StaffList(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(status = status.HTTP_400_BAD_REQUEST)
+    
+class StaffDetail(APIView):
+    def get_object(self, id):
+        try:
+            return Staff.objects.get(staff_no = id)
+        except Staff.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id):
+        queryset = self.get_object(id)
+        serializer = StaffSerializer(queryset)
+        return Response(serializer.data)
+
+    def put(self, request, id):
+        queryset = self.get_object(id)
+        serializer = StaffSerializer(queryset, data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(status = status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, id):
+        queryset = self.get_object(id)
+        queryset.delete()
+        return Response(status = status.HTTP_204_NO_CONTENT)
 
 class StaffByBranch(APIView): #STAFF LISTING ------------------------------------------------------------------------------------------------------
     def get_object(self, branch_no):
@@ -221,11 +242,16 @@ class PropertyforrentDetail(APIView):
         queryset.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class PropertyByBranch(APIView): #----------------------------------------------------------------------------------
+class   PropertyByBranch(APIView): #----------------------------------------------------------------------------------
     def get_object(self, branch_no):
         try:
             return Branch.objects.get(branch_no = branch_no)
         except Branch.DoesNotExist:
+            raise Http404
+    def get_manager(self, branch_no):
+        try:
+            return Staff.objects.get(branch_no = branch_no, pos = "Manager")
+        except Staff.DoesNotExist:
             raise Http404
     def get(self, request, branch_no):
         queryset1 = self.get_object(branch_no)
@@ -234,7 +260,7 @@ class PropertyByBranch(APIView): #----------------------------------------------
             "branch": queryset1,
             "property": queryset2
         }
-        manager = Staff.objects.get(branch_no = branch_no, pos = "Manager")
+        manager = self.get_manager(branch_no=branch_no)
         serializer = PropertyByBranchSerializer(data)
 
         serialized_data = serializer.data
@@ -286,14 +312,24 @@ class MatchProperty(APIView):
         except Propertyforrent.DoesNotExist:
             raise Http404
     def get(self, request, propertyno):
+        active_leases = Lease.objects.filter(rent_finish__gt = timezone.now().date())
         property = self.get_object(property_no = propertyno)
-        clients = Client.objects.filter(regbranch = property.regbranch, maxrent__gt = property.rent, preftype = property.proptype)
+        clients = Client.objects.filter(
+            regbranch = property.regbranch, 
+            maxrent__gt = property.rent, 
+            preftype = property.proptype
+        ).exclude(
+            Q(leaseno__in=active_leases.values("leaseno")) &
+            Q(leaseno__isnull=False)
+        )
         data = {
             "property": property,
             "client": clients
         }
         serializer = MatchingSerializer(data)
-        return Response(serializer.data)
+        serialized_data = serializer.data
+        serialized_data["length"] = clients.count()
+        return Response(serialized_data)
 
 class PreferenceList(APIView):
     def get(self, request):
@@ -377,6 +413,19 @@ class StaffSearchView(APIView):
             return Response(serialized_staff)
         else:
             return Response([])
+        
+class SupervisorByBranchView(APIView):
+    def get_object(self, branch_no):
+        try:
+            return Branch.objects.get(branch_no = branch_no)
+        except Branch.DoesNotExist:
+            raise Http404
+    def get(self, request,branch_no, format=None):
+        branch = self.get_object(branch_no)
+
+        staffs = Staff.objects.filter(branch_no = branch.branch_no, pos = "Supervisor")
+        serialized_staff = [{"staff_no": staff.staff_no} for staff in staffs]
+        return Response(serialized_staff)
 
 class ClientSearchView(APIView):
     def get(self, request, branch_no, format=None):
