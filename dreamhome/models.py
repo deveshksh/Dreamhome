@@ -185,6 +185,9 @@ class Propertyforrent(models.Model):
     class Meta:
         managed = False
         db_table = 'propertyforrent'
+    
+    def __str__(self):
+        return f'{self.propertyno} {self.address}'
 
 
 class Staff(models.Model):
