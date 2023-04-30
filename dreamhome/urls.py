@@ -35,5 +35,7 @@ urlpatterns = [
     path("property/<str:branch_no>/search", PropertySearchView.as_view()),
     path("owner/<str:branch_no>/search", OwnerSearchView.as_view()),
 
+    path("supervisor/<str:branch_no>/", SupervisorByBranchView.as_view()),
+
 
 ]

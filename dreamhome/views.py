@@ -413,12 +413,25 @@ class StaffSearchView(APIView):
             return Response(serialized_staff)
         else:
             return Response([])
+        
+class SupervisorByBranchView(APIView):
+    def get_object(self, branch_no):
+        try:
+            return Branch.objects.get(branch_no = branch_no)
+        except Branch.DoesNotExist:
+            raise Http404
+    def get(self, request,branch_no, format=None):
+        branch = self.get_object(branch_no)
+
+        staffs = Staff.objects.filter(branch_no = branch.branch_no, pos = "Supervisor")
+        serialized_staff = [{"staff_no": staff.staff_no} for staff in staffs]
+        return Response(serialized_staff)
 
 class ClientSearchView(APIView):
     def get(self, request, branch_no, format=None):
         search_query = request.query_params.get('q', None)
         if search_query:
-            clients = Client.objects.filter(Q(client_no__icontains=search_query) | Q(fname__icontains=search_query) | Q(lname__icontains=search_query), regbranch = branch_no  )
+            clients = Client.objects.filter(Q(clientno__icontains=search_query) | Q(fname__icontains=search_query) | Q(lname__icontains=search_query), regbranch = branch_no  )
             serialized_client = [{"client_no": client.client_no, "name": client.fname + " " + client.lname} for client in clients]
             return Response(serialized_client)
         else:
