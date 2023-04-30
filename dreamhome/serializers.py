@@ -84,9 +84,20 @@ class PrivateOwnerSerializer(serializers.ModelSerializer):
         return owner
 
 class PropertyforrentSerializer(serializers.ModelSerializer):
+    propertyno = serializers.PrimaryKeyRelatedField(read_only = True)
     class Meta:
         model = Propertyforrent
         fields = "__all__"
+
+    def create(self, validated_data):
+        last_owner = Propertyforrent.objects.order_by("propertyno").last()
+        if last_owner:
+            new_code = "P" + str(int(last_owner.propertyno[1:]) + 1).zfill(5)
+        else:
+            new_code = "P00001"
+        
+        owner = Propertyforrent.objects.create(propertyno = new_code, **validated_data)
+        return owner
 
 class SimplePropertySerializer(serializers.ModelSerializer):
     class Meta:

@@ -180,7 +180,7 @@ class Propertyforrent(models.Model):
     regstaff = models.ForeignKey('Staff', models.DO_NOTHING, db_column='regStaff')  # Field name made lowercase.
     regbranch = models.ForeignKey(Branch, models.DO_NOTHING, db_column='regBranch')  # Field name made lowercase.
     regdate = models.DateField(db_column='regDate')  # Field name made lowercase.
-    rent_status = models.IntegerField()
+    rent_status = models.IntegerField(blank=True, null=True, default = 0)
 
     class Meta:
         managed = False
@@ -218,7 +218,7 @@ class ViewReport(models.Model):
 
 class Lease(models.Model):
     clientno = models.ForeignKey(Client, models.DO_NOTHING, db_column='clientno', related_name="leaseno")
-    propertyno = models.ForeignKey('Propertyforrent', models.DO_NOTHING, db_column='propertyno')
+    propertyno = models.ForeignKey('Propertyforrent', models.DO_NOTHING, db_column='propertyno', related_name="leaseno")
     rent = models.IntegerField()
     payment_method = models.CharField(max_length=30)
     deposit_paid = models.IntegerField()
