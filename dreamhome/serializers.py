@@ -30,7 +30,12 @@ class StaffSerializer(serializers.ModelSerializer):
             new_code = "S" + str(int(last_staff.staff_no[1:]) + 1).zfill(5)
         else:
             new_code = "S00001"
-        
+        if validated_data["supervisor_no"] == "":
+            validated_data["supervisor_no"] = None
+        if validated_data["manager_date"] == "":
+            validated_data["manager_date"] = None
+        if validated_data["manager_bonus"] == "":
+            validated_data["manager_bonus"] = None
         staff = Staff.objects.create(staff_no = new_code, **validated_data)
         return staff
 
